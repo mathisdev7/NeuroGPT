@@ -21,6 +21,9 @@ const config = {
       JetBrainsMono: ["JetBrains Mono"],
     },
     extend: {
+      screens: {
+        "3xl": "1900px",
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

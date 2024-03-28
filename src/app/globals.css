@@ -75,25 +75,3 @@
     @apply bg-background text-foreground;
   }
 }
-
-.absolute {
-  overflow-y: auto; /* Activer le défilement vertical */
-  scrollbar-width: thin; /* Largeur de la barre de défilement */
-  scrollbar-color: #888 #f1f1f1; /* Couleurs de la barre de défilement */
-}
-
-/* Piste de la barre de défilement */
-.absolute::-webkit-scrollbar-track {
-  background: #f1f1f1; /* Couleur de fond de la piste */
-}
-
-/* Poignée de la barre de défilement */
-.absolute::-webkit-scrollbar-thumb {
-  background: #888; /* Couleur de fond de la poignée */
-  border-radius: 5px; /* Bordure arrondie de la poignée */
-}
-
-/* Coin de la barre de défilement */
-.absolute::-webkit-scrollbar-corner {
-  background: transparent; /* Couleur de fond du coin */
-}

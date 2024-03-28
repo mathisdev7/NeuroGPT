@@ -2,7 +2,7 @@
 import { TypewriterEffectSmooth } from "@/components/ui/type-writer-effect";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 
@@ -34,7 +34,7 @@ export default function Home() {
     { text: "level." },
   ];
   return (
-    <main className="bg-[#ccafad] flex flex-col items-center h-screen justify-between">
+    <main className="bg-[#222222] flex flex-col items-center h-screen justify-between">
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
       <link
@@ -61,12 +61,14 @@ export default function Home() {
               </a>
             </li>
             <li>
-              <a
-                href="/api/auth/logout"
+              <span
+                onClick={() =>
+                  signOut({ redirect: false }).then(() => router.push("/login"))
+                }
                 className="hover:text-[#eee] transition-all duration-300 text-lg"
               >
                 Logout
-              </a>
+              </span>
             </li>
           </ul>
         </div>

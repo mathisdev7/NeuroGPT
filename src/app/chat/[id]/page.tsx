@@ -43,20 +43,23 @@ type ChatData = {
 
 export default function Chat({ params }: { params: { id: string } }) {
   const session = useSession();
+  const [sessionLoading, setSessionLoading] = React.useState<boolean>(true);
   const [chatData, setChatData] = React.useState<ChatData>(null);
   const [newMessage, setNewMessage] = React.useState<boolean>(false);
   const [newAiMessage, setNewAiMessage] = React.useState<boolean>(false);
   const [inputValue, setInputValue] = React.useState<string>("");
   const [isAiPromptLoading, setIsAiPromptLoading] = React.useState<string>("");
   const [history, setHistory] = React.useState<ChatData[]>([]);
+  const router = useRouter();
 
   React.useEffect(() => {
     if (session.status === "loading") return;
     if (session.status === "unauthenticated") {
       router.push("/");
+      setSessionLoading(false);
     }
+    setSessionLoading(false);
   }, [session.status, session.data]);
-  const router = useRouter();
   React.useEffect(() => {
     AOS.init({ duration: 1200 });
   }, []);
@@ -69,7 +72,7 @@ export default function Chat({ params }: { params: { id: string } }) {
     })
       .then((res) => res.json())
       .then((data) => setChatData(data));
-  }, []);
+  }, [sessionLoading, newMessage, newAiMessage]);
   React.useEffect(() => {
     fetch(`/api/messages/getAll`, {
       method: "GET",
@@ -79,7 +82,7 @@ export default function Chat({ params }: { params: { id: string } }) {
     })
       .then((res) => res.json())
       .then((data) => setHistory(data));
-  }, []);
+  }, [sessionLoading]);
   const sendMessage = () => {
     if (!inputValue) return;
     fetch(`/api/messages/add`, {
@@ -113,7 +116,7 @@ export default function Chat({ params }: { params: { id: string } }) {
     setInputValue("");
   };
   return (
-    <main className="bg-[#ccafad] flex flex-col items-center h-screen justify-between">
+    <main className="bg-[#222222] flex flex-col items-center h-screen justify-between">
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
       <link
@@ -125,38 +128,41 @@ export default function Chat({ params }: { params: { id: string } }) {
         href="https://fonts.googleapis.com/css2?family=Anta&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap"
         rel="stylesheet"
       />
-      <div className="absolute w-200 right-0 h-full bg-[#ccafad] overflow-y-scroll">
-        <div className="relative left-24 top-8 font-JetBrainsMono w-5/6 flex flex-col space-y-8 pb-24">
-          {chatData?.messages.map((message) => (
-            <React.Fragment key={message.id}>
-              <div className="flex flex-row space-x-4">
-                <Image
-                  className="bg-[#ccc] rounded-full w-12 h-12"
-                  alt="logo"
-                  src={UserLogo}
-                  width={48}
-                  height={48}
-                />
-                <p className="mt-4">{message.content}</p>
-              </div>
-              <div className="flex flex-row space-x-4">
-                <Image
-                  className="bg-[#ccc] rounded-full w-12 h-12"
-                  alt="logo"
-                  src={Logo}
-                  width={48}
-                  height={48}
-                />
-                <span className="mt-4">
-                  {isAiPromptLoading === message.id ? (
-                    <Icons.spinner className="w-6 h-6 animate-spinner" />
-                  ) : (
-                    <ReactMarkdown>{message.reply}</ReactMarkdown>
-                  )}
-                </span>
-              </div>
-            </React.Fragment>
-          ))}
+      <div className="absolute w-200 right-0 h-full bg-[#181818] overflow-y-scroll">
+        <div className="relative left-24 2xl:left-40 top-8 font-JetBrainsMono w-5/6 flex flex-col space-y-8 pb-24">
+          {session.data &&
+            chatData?.messages?.map((message) => (
+              <React.Fragment key={message.id}>
+                <div className="flex flex-row space-x-4">
+                  <Image
+                    className="bg-[#ccc] rounded-full w-12 h-12"
+                    alt="logo"
+                    src={UserLogo}
+                    width={48}
+                    height={48}
+                  />
+                  <p className="mt-4 text-[#eee]">{message.content}</p>
+                </div>
+                <div className="flex flex-row space-x-4">
+                  <Image
+                    className="bg-[#ccc] rounded-full w-12 h-12"
+                    alt="logo"
+                    src={Logo}
+                    width={48}
+                    height={48}
+                  />
+                  <span className="mt-4">
+                    {isAiPromptLoading === message.id ? (
+                      <Icons.spinner className="w-6 h-6 animate-spinner" />
+                    ) : (
+                      <ReactMarkdown className="text-[#eee]">
+                        {message.reply}
+                      </ReactMarkdown>
+                    )}
+                  </span>
+                </div>
+              </React.Fragment>
+            ))}
         </div>
         <Input
           onChange={(e) => setInputValue(e.target.value)}
@@ -165,29 +171,37 @@ export default function Chat({ params }: { params: { id: string } }) {
             if (e.key === "Enter") sendMessage();
           }}
           type="text"
-          className="w-full fixed bottom-0 h-12 rounded-none"
-          placeholder="Type a message..."
+          className="w-1/2 fixed right-96 bottom-4 h-12 rounded-xl bg-[#333333] text-[#eee] border-none focus:border-none"
+          placeholder="Message NeuroGPT..."
         ></Input>
       </div>
-      <div className="w-52 h-full absolute left-0 border-[#eee] border-solid border-r z-50 bg-[#ccafad]">
-        <div className="flex flex-col m-8 w-32">
+      <div className="w-52 h-full absolute text-center left-0 z-50 bg-[#222222]">
+        <div className="border-b-2 border-white w-full h-20">
+          <Image
+            className="absolute bg-[#ccc] rounded-full w-8 h-8 top-6 left-3"
+            alt="logo"
+            src={Logo}
+            width={38}
+            height={38}
+          />
           <a
             href="/chat"
-            className="font-JetBrainsMono text-xl text-[#8572a8] font-bold text-center"
+            className="relative text-xl text-[#eee] font-bold top-6"
           >
             New Chat
           </a>
         </div>
-        {history.map((chat) => (
-          <div key={chat?.id} className="flex flex-col m-8 w-32">
-            <a
-              href={`/chat/${chat?.id}`}
-              className="font-JetBrainsMono text-sm text-center"
-            >
-              {chat?.title}
-            </a>
-          </div>
-        ))}
+        {session.data &&
+          history?.map((chat) => (
+            <div key={chat?.id} className="flex flex-col m-8 w-32">
+              <a
+                href={`/chat/${chat?.id}`}
+                className="text-base text-[#eee] text-center"
+              >
+                {chat?.title}
+              </a>
+            </div>
+          ))}
       </div>
     </main>
   );

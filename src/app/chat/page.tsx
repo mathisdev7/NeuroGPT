@@ -41,17 +41,21 @@ type ChatData = {
 
 export default function Chat() {
   const session = useSession();
+  const [sessionLoading, setSessionLoading] = React.useState<boolean>(true);
   const [inputValue, setInputValue] = React.useState<string>("");
   const [showPrompt, setShowPrompt] = React.useState<boolean>(false);
   const [history, setHistory] = React.useState<ChatData[]>([]);
+  const router = useRouter();
 
   React.useEffect(() => {
     if (session.status === "loading") return;
     if (session.status === "unauthenticated") {
       router.push("/");
+      setSessionLoading(false);
     }
+    setSessionLoading(false);
   }, [session.status, session.data]);
-  const router = useRouter();
+
   React.useEffect(() => {
     AOS.init({ duration: 1200 });
   }, []);
@@ -64,7 +68,7 @@ export default function Chat() {
     })
       .then((res) => res.json())
       .then((data) => setHistory(data));
-  }, []);
+  }, [sessionLoading]);
   const sendMessage = () => {
     if (!inputValue) return;
     setShowPrompt(true);
@@ -94,7 +98,7 @@ export default function Chat() {
       });
   };
   return (
-    <main className="bg-[#ccafad] flex flex-col items-center h-screen justify-between">
+    <main className="bg-[#ccc] flex flex-col items-center h-screen justify-between">
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
       <link
@@ -108,7 +112,7 @@ export default function Chat() {
       />
       <div data-aos="fadeup" className="absolute top-6 z-50">
         <ul
-          className="rounded-full bg-[#181818] text-[#fff] shadow-xl flex flex-row space-x-8 p-3 w-64 justify-center items-center"
+          className="rounded-full bg-[#222222] text-[#fff] shadow-xl flex flex-row space-x-8 p-3 w-64 justify-center items-center"
           style={{ fontFamily: "Jetbrains Mono" }}
         >
           <li>
@@ -129,7 +133,25 @@ export default function Chat() {
           </li>
         </ul>
       </div>
-      <div className="absolute w-200 right-0 h-full bg-[#ccafad]">
+      {!showPrompt && (
+        <div className="flex flex-col justify-center items-center z-50 mt-48">
+          <div>
+            <Image
+              className="bg-[#ccc] rounded-full w-28 h-28 relative"
+              alt="logo"
+              src={Logo}
+              width={48}
+              height={48}
+            />
+          </div>
+          <div>
+            <p className="mt-4 text-[#eee] text-2xl">
+              How may I assist you today?
+            </p>
+          </div>
+        </div>
+      )}
+      <div className="absolute w-200 right-0 h-full bg-[#181818]">
         <div className="relative left-24 top-24 font-JetBrainsMono w-5/6 flex flex-col space-y-8 pb-24">
           <div className="flex flex-row space-x-4">
             {showPrompt && (
@@ -141,7 +163,7 @@ export default function Chat() {
                   width={48}
                   height={48}
                 />
-                <p className="mt-4">{inputValue}</p>
+                <p className="mt-4 text-white">{inputValue}</p>
               </>
             )}
           </div>
@@ -169,21 +191,37 @@ export default function Chat() {
             if (e.key === "Enter") sendMessage();
           }}
           type="text"
-          className="w-full absolute bottom-0 h-12"
-          placeholder="Type a message..."
+          className="w-1/2 fixed right-96 bottom-4 h-12 rounded-xl bg-[#333333] text-[#eee] border-none focus:border-none"
+          placeholder="Message NeuroGPT..."
         ></Input>
       </div>
-      <div className="w-52 h-full absolute left-0 border-white border-solid border-2 z-50 bg-[#ccafad]">
-        {history.map((chat) => (
-          <div key={chat?.id} className="flex flex-col m-8">
-            <a
-              href={`/chat/${chat?.id}`}
-              className="font-JetBrainsMono text-sm text-center"
-            >
-              {chat?.title}
-            </a>
-          </div>
-        ))}
+      <div className="w-52 h-full absolute text-center left-0 z-50 bg-[#222222]">
+        <div className="border-b-2 border-white w-full h-20">
+          <Image
+            className="absolute bg-[#ccc] rounded-full w-8 h-8 top-6 left-3"
+            alt="logo"
+            src={Logo}
+            width={38}
+            height={38}
+          />
+          <a
+            href="/chat"
+            className="relative text-xl text-[#eee] font-bold top-6"
+          >
+            New Chat
+          </a>
+        </div>
+        {session.data &&
+          history?.map((chat) => (
+            <div key={chat?.id} className="flex flex-col m-8 relative top-2">
+              <a
+                href={`/chat/${chat?.id}`}
+                className="text-base text-[#eee] text-center"
+              >
+                {chat?.title}
+              </a>
+            </div>
+          ))}
       </div>
     </main>
   );

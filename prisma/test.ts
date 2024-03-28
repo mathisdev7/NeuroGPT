@@ -2,7 +2,6 @@ import { prisma } from "@/lib/prismaClient";
 import { hash } from "bcrypt";
 
 async function main() {
-  return await prisma.$executeRaw`TRUNCATE "ChatMessage", "Message" CASCADE;`;
   const hashedPassword = await hash("test123", 10);
   const newUser = await prisma.user.create({
     data: {

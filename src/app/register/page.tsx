@@ -119,7 +119,7 @@ export default function Register() {
     AOS.init({ duration: 1200 });
   });
   return (
-    <main className="bg-[#ccafad] flex flex-col items-center h-screen justify-between">
+    <main className="bg-[#222222] flex flex-col items-center h-screen justify-between xl:h-[120vh] overflow-hidden">
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
       <link

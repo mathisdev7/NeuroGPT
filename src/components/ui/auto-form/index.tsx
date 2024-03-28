@@ -5,7 +5,7 @@ import { DefaultValues, useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/cn";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import AutoFormObject from "./fields/object";
