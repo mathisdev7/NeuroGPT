@@ -99,21 +99,33 @@ export default function Chat({ params }: { params: { id: string } }) {
       .then((data) => {
         setIsAiPromptLoading(data.message.id);
         setNewMessage(!newMessage);
-        fetch(`/api/messages/reply`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            messageId: data.message.id,
-            prompt: inputValue,
-          }),
-        }).then(() => {
-          setNewAiMessage(!newMessage);
-          setIsAiPromptLoading("");
-        });
+        sendReplyAsync(data.message.id, inputValue);
       });
     setInputValue("");
+  };
+  const sendReplyAsync = async (messageId: string, inputValue: string) => {
+    try {
+      const response = await fetch(`/api/messages/reply`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          messageId: messageId,
+          prompt: inputValue,
+        }),
+      });
+      if (response.ok) {
+        setNewAiMessage(!newMessage);
+        setIsAiPromptLoading("");
+      } else {
+        // Gérer les erreurs de réponse ici
+        console.error("Erreur lors de l'envoi de la réponse");
+      }
+    } catch (error) {
+      // Gérer les erreurs de requête ici
+      console.error("Erreur lors de la requête de réponse:", error);
+    }
   };
   return (
     <main className="bg-[#222222] flex flex-col items-center h-screen justify-between">
