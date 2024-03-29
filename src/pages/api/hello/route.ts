@@ -5,5 +5,5 @@ import runSocket from "@/lib/socket";
 
 export function GET(request: Request) {
   runSocket();
-  return new Response(`Hello from ${process.env.VERCEL_REGION}`);
+  return new Response(`Hello from ${process.env.VERCEL_REGION}.`);
 }
