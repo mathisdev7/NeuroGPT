@@ -19,17 +19,19 @@ server.listen(3010, () => {
   console.log("Socket.io server is running on port 3010");
 });
 
-io.on("connection", (socket) => {
-  socket.on("ai prompting", async (promptMessage, messageId) => {
-    const reply = await askAI(promptMessage);
-    await prisma.message.update({
-      where: {
-        id: messageId,
-      },
-      data: {
-        reply: reply as string,
-      },
+export default () => {
+  io.on("connection", (socket) => {
+    socket.on("ai prompting", async (promptMessage, messageId) => {
+      const reply = await askAI(promptMessage);
+      await prisma.message.update({
+        where: {
+          id: messageId,
+        },
+        data: {
+          reply: reply as string,
+        },
+      });
+      socket.emit("ai prompted", reply);
     });
-    socket.emit("ai prompted", reply);
   });
-});
+};
