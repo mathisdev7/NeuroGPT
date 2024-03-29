@@ -1,5 +1,5 @@
 export const askAI = async (message: string) => {
-  const res = await fetch("https://api.neuroengine.ai/Neuroengine-Large", {
+  const res = await fetch("https://api.neuroengine.ai/Neuroengine-Fast", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -9,8 +9,6 @@ export const askAI = async (message: string) => {
       message: message,
     }),
   });
-  console.log(res);
   const data = await res.json();
-  console.log(data);
   return data.reply;
 };

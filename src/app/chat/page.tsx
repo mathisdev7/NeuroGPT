@@ -7,8 +7,10 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import * as React from "react";
+import { io } from "socket.io-client";
 import Logo from "../../../public/logo.jpeg";
 import UserLogo from "../../../public/user-logo.webp";
+const socket = io("http://localhost:3010");
 
 type User = {
   id: string;
@@ -83,16 +85,9 @@ export default function Chat() {
     })
       .then((res) => res.json())
       .then((data: any) => {
-        fetch(`/api/messages/reply`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            prompt: inputValue,
-            messageId: data?.message.id,
-          }),
-        }).then(() => {
+        socket.emit("ai prompting", inputValue, data?.message.id);
+        socket.on("ai prompted", (reply) => {
+          if (typeof reply !== "string") return;
           router.push(`/chat/${data?.chatMessage.id}`);
         });
       });

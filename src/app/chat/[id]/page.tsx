@@ -8,8 +8,10 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 import ReactMarkdown from "react-markdown";
+import { io } from "socket.io-client";
 import Logo from "../../../../public/logo.jpeg";
 import UserLogo from "../../../../public/user-logo.webp";
+const socket = io("http://localhost:3010");
 
 type User = {
   id: string;
@@ -85,6 +87,7 @@ export default function Chat({ params }: { params: { id: string } }) {
   }, [sessionLoading]);
   const sendMessage = () => {
     if (!inputValue) return;
+    setInputValue("");
     fetch(`/api/messages/add`, {
       method: "POST",
       headers: {
@@ -104,28 +107,12 @@ export default function Chat({ params }: { params: { id: string } }) {
     setInputValue("");
   };
   const sendReplyAsync = async (messageId: string, inputValue: string) => {
-    try {
-      const response = await fetch(`/api/messages/reply`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          messageId: messageId,
-          prompt: inputValue,
-        }),
-      });
-      if (response.ok) {
-        setNewAiMessage(!newMessage);
-        setIsAiPromptLoading("");
-      } else {
-        // Gérer les erreurs de réponse ici
-        console.error("Erreur lors de l'envoi de la réponse");
-      }
-    } catch (error) {
-      // Gérer les erreurs de requête ici
-      console.error("Erreur lors de la requête de réponse:", error);
-    }
+    socket.emit("ai prompting", inputValue, messageId);
+    socket.on("ai prompted", (reply) => {
+      if (typeof reply !== "string") return;
+      setNewAiMessage(!newMessage);
+      setIsAiPromptLoading("");
+    });
   };
   return (
     <main className="bg-[#222222] flex flex-col items-center h-screen justify-between">
