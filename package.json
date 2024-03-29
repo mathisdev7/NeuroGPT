@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "concurrently \"pnpx tsx src/lib/socket.ts\" \"next dev\"",
     "build": "next build",
-    "start": "prisma generate && next start",
+    "start": "prisma generate && concurrently \"pnpx tsx src/lib/socket.ts\" \"next start\"",
     "lint": "next lint"
   },
   "dependencies": {
